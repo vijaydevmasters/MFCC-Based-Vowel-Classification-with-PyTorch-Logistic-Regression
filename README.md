@@ -1,70 +1,79 @@
-Logistic Regression Redux: Pytorch
+```markdown
+# Logistic Regression for Vowel Classification in PyTorch
 
-
-Overview
+**Overview**
 --------
 
-In this homework you'll implement a stochastic gradient **descent** for
-logistic regression and you'll apply it to vowel classification, for vowels
-spoken in 'hVd' contexts.  The dataset has the following vowels:
+This project implements a logistic regression model using PyTorch, trained with stochastic gradient descent (SGD), to perform binary classification of American English vowels. The model is applied to differentiate between pairs of vowels spoken in 'hVd' (e.g., "had", "hid") contexts, using the Hillenbrand et al. (1995) dataset.
 
-   ae, ah, aw, eh, ei, er, ih, iy, oa, oo, uh, uw
+The system processes WAV audio files by:
+1.  Extracting 13-dimensional Mel-Frequency Cepstral Coefficients (MFCCs) using the `librosa` library.
+2.  Selecting the middle frame of each utterance's MFCCs as its representative feature vector.
+3.  Normalizing these features (z-scoring) across the entire dataset.
 
-and the user will input a list of two of these, separated by a comma.
+The logistic regression model then learns to classify user-specified pairs of vowels (e.g., 'iy' vs. 'ah', 'eh' vs. 'ae'). The classification difficulty, and thus test accuracy (ranging from 0.5 to 1.0), varies depending on the acoustic similarity of the chosen vowel pair.
 
-The dataset is described in Hillenbrand et al. (1995), and is contained
-in the 'Hillenbrand' directory, with subdirectories for men, women, and
-children's utterances.  You'll be using the librosa package to read in
-the wav files and compute 13-dimensional MFCCs.  The basic code for this 
-is given.
+**Key Features**
+-------------
 
-You'll be running logistic regression on pairs of vowels, in order to
-classify them.  Some pairs of vowels (like iy vs. ah) are easy to tell 
-apart, and classification accuracy will be at ceiling, whereas other pairs 
-of vowels (like eh vs. ae) are more difficult to tell apart.  You should 
-expect your regressions to yield test accuracies ranging between 0.5 and 1, 
-depending on which pair of vowels you are classifying.
+*   **Audio Feature Extraction:** Utilizes `librosa` to compute MFCCs from raw audio signals, focusing on the temporal midpoint of vowel utterances.
+*   **Data Preprocessing:** Implements z-score normalization for feature scaling, ensuring robust model training.
+*   **PyTorch Model:** A logistic regression model built with a single `nn.Linear` layer and a sigmoid activation function.
+*   **Training:** Employs Stochastic Gradient Descent (SGD) for model optimization, with explicit gradient zeroing, forward pass, loss calculation, and backpropagation steps.
+*   **Vowel Pair Customization:** Allows users to select any two vowels from the dataset for binary classification.
+*   **Dataset:** Leverages the Hillenbrand et al. (1995) vowel dataset, which includes utterances from men, women, and children.
 
+**Dataset Vowels:**
+The following vowels from the dataset can be used for classification:
+`ae, ah, aw, eh, ei, er, ih, iy, oa, oo, uh, uw`
 
-What you have to do
-----
+**Setup & Installation**
+--------------------
 
-Setup:
+1.  It's recommended to create and activate a Python virtual environment:
+    ```bash
+    python3 -m venv venv
+    source venv/bin/activate  # On Unix/macOS
+    # venv\Scripts\activate  # On Windows
+    ```
 
-1. You may need to create a virtual environment and install Python
-   packages:
-   
+2.  Install the required Python packages:
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+**Running the Classification**
+---------------------------
+
+The main script `lr_speech.py` can be run from the command line. You need to specify the two vowels to classify.
+
+**Usage:**
+```bash
+python lr_speech.py --vowels <VOWEL1>,<VOWEL2> [OPTIONS]
 ```
-python3 -m venv venv
-./venv/bin/pip3 install -r requirements.txt
+
+**Example:**
+To classify between the vowels 'ih' and 'eh':
+```bash
+python lr_speech.py --vowels ih,eh
 ```
 
-Coding:
+**Available Options (see `python lr_speech.py --help` for more):**
+*   `--directory`: Path to the Hillenbrand dataset directory (default: `./Hillenbrand`).
+*   `--num_mfccs`: Number of MFCCs to extract (default: 13).
+*   `--passes`: Number of training epochs (default: 5).
+*   `--batch`: Batch size for training (default: 1).
+*   `--learnrate`: Learning rate for SGD (default: 0.1).
 
-1. Create a dataset in the `create_dataset` function.  You'll be extracting 
-   MFCCs from each wav file and taking the middle frame of the utterance as 
-   your feature vector.  The matrix needs to have a row for each utterance 
-   and a column for each feature.  Once you've extracted the middle frame of
-   each utterance, you'll z-score each feature across all of the utterances.
+**Potential Enhancements**
+----------------------
+While MFCCs from the midpoint frame provide a good baseline, alternative feature extraction strategies could be explored to potentially improve classification performance on more acoustically similar vowel pairs. This could include:
+*   Averaging MFCCs over several frames or the entire vowel duration.
+*   Using delta and delta-delta MFCCs to capture dynamic information.
+*   Exploring other acoustic features like Formants, Pitch, or LPC coefficients.
 
-3. Create a logistic regression model with a softmax/sigmoid activation
-   function, using a network with one linear layer. To make unit tests work,
-   we had to initialize a member of the SimpleLogreg class.  Replace the
-   none object with an [appropriate nn.Module](https://pytorch.org/docs/stable/generated/torch.nn.Linear.html).
+**References**
+------------
 
-5. Optimize the function (remember to zero out gradients) in the
-   `step` function.
-   
-
-Extra credit: 
-
-MFCCs computed at the midpoint frame may not be the best way of 
-classifying vowels.  Write an alternative feature extractor function, 
-create_alt_dataset, that gets better classification performance on the
-pairs of vowels that weren't already at ceiling.
-
-
-References:
-
-Hillenbrand, J., Getty, L. A., Clark, M. J., and Wheeler, K. (1995). Acoustic characteristics of American English vowels. Journal of the Acoustical Society of America, 97(5):3099– 3111.
-
+Hillenbrand, J., Getty, L. A., Clark, M. J., and Wheeler, K. (1995). Acoustic characteristics of American English vowels. *Journal of the Acoustical Society of America, 97*(5):3099–3111.
+```
